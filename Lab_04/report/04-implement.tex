@@ -1,0 +1,107 @@
+\chapter{Технологический раздел}
+
+В данном разделе будут приведены требования к ПО, средства его реализации и листинга кода алгоритмов, а также рассмотрены тестовые случаи.
+
+\section{Требования к ПО}
+
+Программное обеспечение должно удовлетворять следующим требованиям:
+\begin{itemize}
+	\item ПО принимает вещественные пределы интегрирования и указатель на интегрируемую функцию;
+	\item ПО возвращает вещественное число - результат интегрирования.
+\end{itemize}
+
+\section{Средства реализации} 
+
+Для реализации ПО был выбран компилируемый язык C. В качестве среды разработки - QtCreator. Оба средства были выбраны из тех соображений, что навыки работы с ними были получены в более ранних курсах.
+
+\section{Листинги кода}
+
+Листинги 1 - 3 демонстрируют реализацию алгоритмов.
+
+\captionsetup{singlelinecheck = false, justification=raggedright}
+\begin{lstlisting}[label=refineIntegral, caption=Алгоритм последовательного вычисления значения определенного интеграла]
+double refineIntegral(double a, double b, integralFunc func)
+{
+    int n = 2;
+    double refRes = calculateIntegral(a, b, n, func);
+    double res = 0;
+    while (fabs(res - refRes) > EPS)
+    {
+        res = refRes;
+        n *= 2;
+        refRes = calculateIntegral(a, b, n, func);
+    }
+    return res;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[label=calculateIntegral, caption=Алгоритм вычисления значения определенного интеграла]
+double calculateIntegral(double a, double b, int n, integralFunc func)
+{
+    double result = 0;
+    double h = (b - a) / n;
+    double curX = a;
+    for (int i = 1; i < n; i++)
+    {
+        curX += h;
+        result += func(curX);
+    }
+    result += (func(a) + func(b)) / 2;
+    result *= h;
+    return result;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[label=integralWithThreads, caption=Алгоритм параллельного вычисления значения определенного интеграла]
+double integralWithThreads(int tNum, double a, double b, integralFunc func)
+{
+    double h = (b - a) / tNum;
+    pthread_t threads[tNum];
+    struct threadData threadData[tNum];
+    for (int i = 0; i < tNum; i++)
+    {
+        threadData[i].ind = i;
+        threadData[i].a = a;
+        threadData[i].h = h;
+        threadData[i].func = func;
+        threadData[i].res = 0;
+        pthread_create(&(threads[i]), NULL,\
+                       oneThreadIntegral, &threadData[i]);
+    }
+
+    for (int i = 0; i < tNum; i++)
+        pthread_join(threads[i], NULL);
+
+    double res = 0;
+    for (int i = 0; i < tNum; i++)
+        res += threadData[i].res;
+    return res;
+}
+\end{lstlisting}
+\captionsetup{singlelinecheck = false, justification=centering}
+
+\section{Тестирование ПО}
+
+В таблице 3.1 приведены тестовые случаи для алгоритмов интегрирования, причем функция $f = x^2 + 4x - 21$.
+Случай 1 - совпадение левого и правого пределов, случай 2 - левый предел больше правого, случаи 3-4 - значение интеграла ненулевое.
+
+\begin{table}[H]
+	\begin{center}
+		\caption{Тестовые случаи}
+		\begin{tabular}{l|l|l}
+			№ & Пределы интегрирования & Результат\\
+			\hline
+			1 & 0 0 & 0\\ 
+			\hline
+			2 & -1 -8 & \text{Некорректные пределы интегрирования}\\
+			\hline
+			3 & 10 100 & 350910.000\\
+			\hline
+			4 & -1 3 & -58.666\\
+		\end{tabular}
+	\end{center}
+\end{table}
+
+\section{Вывод}
+
+На основе схем из конструкторского раздела были написаны реализации требуемых алгоритмов, а также проведено их тестирвание.

@@ -1,0 +1,108 @@
+\chapter{Исследовательский раздел}
+
+В данном разделе будет проведен сравнительный анализ алгоритмов по
+времени и затрачиваемой памяти.
+
+\section{Технические характеристики}
+
+Тестирование выполнялось на устройстве со следующими характеристиками: 
+
+\begin{itemize}
+	\item Операционная система Ubuntu 20.04.3 LTS \cite{ubuntu}
+	\item Память 16 Гб
+	\item Процессор Intel Core i5-1135G7 11th Gen, 2.40 Гц \cite{intel}
+\end{itemize}
+
+Во время проведения эксперимента устройство не было нагружено сторонними задачами, а также было подключено к блоку питания.
+
+Замеры времени осуществлялись с помощью ассемблерной вставки, описанной в листинге 4.1.
+
+\captionsetup{singlelinecheck = false, justification=raggedright}
+\begin{lstlisting}[label=time, caption=Замер времени в микросекундах]
+unsigned long long tick(void)
+{
+	unsigned long long d;
+	__asm__ __volatile__ ("rdtsc": "=A" (d));
+	return d;
+}
+\end{lstlisting}
+\captionsetup{singlelinecheck = false, justification=centering}
+
+При проведении эксперимента была отключена оптимизация командой компилятору -o0 \cite{std=c99}.
+
+\section{Оценка времени работы алгоритмов}
+
+В таблице 4.1 представлен лог выполнения программы для 10 задач и входных матриц размером 3 * 3.
+
+\begin{table}[H]
+	\centering
+	\caption{Лог выполнения программы}
+	\begin{tabular}{l|l|l|l}
+		Tape N & Task M & Time start & Time end\\
+		\hline
+		Tape 1 & Task 1 & 78467 & 82983\\
+		Tape 2 & Task 1 & 226714 & 235872\\
+		Tape 3 & Task 1 & 409641 & 410092\\
+		\hline
+		Tape 1 & Task 2 & 84450 & 87009\\
+		Tape 2 & Task 2 & 248334 & 249506\\
+		Tape 3 & Task 2 & 410148 & 410892\\
+		\hline
+		Tape 1 & Task 3 & 88818 & 90289\\
+		Tape 2 & Task 3 & 250799 & 251421\\
+		Tape 3 & Task 3 & 411642 & 412268\\
+		\hline
+		Tape 1 & Task 4 & 91264 & 92640\\
+		Tape 2 & Task 4 & 251943 & 252526\\
+		Tape 3 & Task 4 & 412664 & 413302\\
+		\hline
+		Tape 1 & Task 5 & 94380 & 95808\\
+		Tape 2 & Task 5 & 253016 & 253607\\
+		Tape 3 & Task 5 & 413625 & 414188\\
+		\hline
+		Tape 1 & Task 6 & 96975 & 98261\\
+		Tape 2 & Task 6 & 254168 & 254650\\
+		Tape 3 & Task 6 & 414517 & 414855\\
+		\hline
+		Tape 1 & Task 7 & 99188 & 100473\\
+		Tape 2 & Task 7 & 255138 & 255627\\
+		Tape 3 & Task 7 & 415174 & 415826\\
+		\hline
+		Tape 1 & Task 8 & 101519 & 102822\\
+		Tape 2 & Task 8 & 256095 & 256609\\
+		Tape 3 & Task 8 & 416141 & 416466\\
+		\hline
+		Tape 1 & Task 9 & 103842 & 105246\\
+		Tape 2 & Task 9 & 257814 & 258304\\
+		Tape 3 & Task 9 & 416777 & 417111\\
+		\hline
+		Tape 1 & Task 10 & 106273 & 107571\\
+		Tape 2 & Task 10 & 258729 & 259300\\
+		Tape 3 & Task 10 & 417397 & 417726\\
+	\end{tabular}
+\end{table}
+
+В таблице 4.2 представлены замеры времени обработки и простоя заявок в системе при параллельном и последовательном выполнении.
+
+\begin{table}[H]
+	\captionsetup{singlelinecheck = false, justification=centering}
+	\renewcommand{\arraystretch}{1.4}
+	\caption{Анализ временных замеров}
+	\begin{tabular}{l|l|l|l|l|l|l|l}
+		\multicolumn{2}{c|}{Характеристика} & \multicolumn{3}{c|}{Парал., тики} & \multicolumn{3}{|c}{Последоват., тики} \\ \cline{1-8}
+		\multicolumn{2}{c|}{Линия} & \multicolumn{1}{c}{1} & \multicolumn{1}{|c}{2} & \multicolumn{1}{|c|}{3} & \multicolumn{1}{|c|}{1} & \multicolumn{1}{|c|}{2} & \multicolumn{1}{|c}{3} \\ \cline{1-8}
+		\multirow{4}{*}{Простой очереди}
+		& min  &  1028           &  378          &  327           &  1200       &  40554       & 41048     \\
+		& max  &  5421       & 13795     & 6875     & 14274      & 73787      & 91762     \\
+		& avg  &  1190       &  1192       & 732      &  7478       &  42908       & 83574     \\ \cline{1-8}
+		\multirow{3}{*}{\begin{tabular}[c]{@{}l@{}}Время заявки\\ в системе\end{tabular}} 
+		& min & \multicolumn{3}{c|}{45238} & \multicolumn{3}{c}{41325} \\  
+		& max & \multicolumn{3}{c|}{179982} & \multicolumn{3}{c}{73655} \\ 
+		& avg & \multicolumn{3}{c|}{102424} & \multicolumn{3}{c}{43826} \\
+	\end{tabular}
+	\label{tab:time-analyth}
+\end{table}
+
+\section{Вывод}
+
+По результатам исследования можно сделать вывод, что простой заявок в системе оказывается значительно меньшим при конвейерной реализации обработки. Однако Общее время заявок в системе при такой работе оказывается больше, это связано с занятостью лент конвейера, в отличие от последовательной реализации, когда вся заявка обрабатывается лентами до полного выхода из системы.

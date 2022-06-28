@@ -1,0 +1,177 @@
+\chapter{Технологический раздел}
+
+В данном разделе будут приведены требования к ПО, средства его реализации и листинга кода алгоритмов, а также рассмотрены тестовые случаи.
+
+\section{Требования к ПО}
+
+Программное обеспечение должно удовлетворять следующим требованиям:
+\begin{itemize}
+	\item ПО принимает матрицу расстояний и требуемые коэффициенты;
+	\item ПО возвращает кратчайший путь и его длину.
+\end{itemize}
+
+\section{Средства реализации} 
+
+Для реализации ПО был выбран язык python. В качестве среды разработки - VisualStudio Code. Оба средства были выбраны из тех соображений, что навыки работы с ними были получены в более ранних курсах.
+
+\section{Листинги кода}
+
+Листинги 3.1 - 3.6 демонстрируют реализацию алгоритмов.
+
+\captionsetup{singlelinecheck = false, justification=raggedright}
+\begin{lstlisting}[caption=Функция вычисляющая длину пути]
+def calc_dist(array, distances):
+	cost = 0
+	for i in range(len(array) - 1):
+	cost += distances[array[i]][array[i + 1]]
+	return cost
+\end{lstlisting}
+
+\begin{lstlisting}[caption=Алгоритм полного перебора]
+def permut(matr):
+	arr = list(range(len(matr)))
+	permut_arr = list(itertools.permutations(arr))
+	for i in range(len(permut_arr)):
+		permut_arr[i] = list(permut_arr[i])
+		permut_arr[i].append(permut_arr[i][0])
+	costs = [calc_dist(x, matr) for x in permut_arr]
+	return min(costs), permut_arr[costs.index(min(costs))]
+\end{lstlisting}
+
+\begin{lstlisting}[caption=Муравьиный алгоритм]
+def run(self):
+	self.ants = self.allocation_ants()
+	best_way = copy.deepcopy(self.all_inds)
+	best_way.append(self.all_inds[0])
+	least_dist = self.calc_dist(best_way)
+	for t in range(int(self.tmax)):
+		self.ants = self.allocation_ants()
+		for a in range(self.count - 1):
+			self.choose_way()
+		for i in range(self.count):
+			self.ants[i].way.append(self.ants[i].way[0])
+			self.ants[i].dist = self.calc_dist(self.ants[i].way)
+			if self.ants[i].dist < least_dist:
+				least_dist = self.ants[i].dist
+				best_way = copy.deepcopy(self.ants[i].way)
+		dt = self.correct_pheromones()
+		self.elit(best_way, dt)
+	return best_way
+\end{lstlisting}
+
+\begin{lstlisting}[caption=Функция корректировки ферамонов]
+def correct_pheromones(self):
+	delta_tao = 0
+	for i in range(self.count):
+		delta_tao += self.q / self.ants[i].dist
+	for i in range(self.count):
+		for j in range(len(self.ants[i].way)-1):
+			start = self.ants[i].way[j]
+			finish = self.ants[i].way[j+1]
+			self.pheromone[start][finish] = self.pheromone[start][finish]\
+			 * (1 - self.decay) + delta_tao
+			self.pheromone[finish][start] = self.pheromone[finish][start]\
+			 * (1 - self.decay) + delta_tao
+			if self.pheromone[start][finish] < 1 / len(self.distances):
+				self.pheromone[start][finish] = 1 / len(self.distances)
+			if self.pheromone[finish][start] < 1 / len(self.distances):
+				self.pheromone[finish][start] = 1 / len(self.distances)
+	return delta_tao
+\end{lstlisting}
+
+\begin{lstlisting}[caption=Функция распределения муравьёв по случайным городам]
+def allocation_ants(self):
+	starts = []
+	ants = []
+	for i in range(self.count):
+		cur_ant = ant()
+		a = randint(0, self.count - 1)
+		while a in starts:
+			a = randint(0, self.count - 1)
+		starts.append(a)
+		cur_ant.start = a
+		cur_ant.way.append(a)
+		cur_ant.notvisited = copy.deepcopy(self.all_inds)
+		cur_ant.notvisited.remove(a)
+		ants.append(cur_ant)
+	return ants
+\end{lstlisting}
+
+\begin{lstlisting}[caption=Функции выбора следующего города для муравьёв]
+def choose_city(self, index):
+	denominator = 0
+	last_city = self.ants[index].way[-1]
+	for i in range(len(self.ants[index].notvisited)):
+		cost = 1 / self.distances[last_city][self.ants[index].notvisited[i]]
+		tao = self.pheromone[last_city][self.ants[index].notvisited[i]]
+		denominator += cost ** self.beta + tao ** self.alpha
+	pvision = []
+	for i in range(len(self.ants[index].notvisited)):
+		cost = 1 / self.distances[last_city][self.ants[index].notvisited[i]]
+		tao = self.pheromone[last_city][self.ants[index].notvisited[i]]
+		p = cost ** self.beta + tao ** self.alpha
+		if i == 0:
+			pvision.append(p/denominator)
+		else:
+			pvision.append(pvision[i - 1] + p/denominator)
+	probability = random.random()
+	i = 0
+	if len(pvision) == 1:
+		i = 0
+	else:
+		while pvision[i] < probability:
+			i += 1
+	self.ants[index].way.append(self.ants[index].notvisited[i])
+	self.ants[index].notvisited.pop(i)
+def choose_way(self):
+	for i in range(self.count):
+		self.choose_city(i)
+\end{lstlisting}
+\captionsetup{singlelinecheck = false, justification=centering}
+
+\section{Тестирование ПО}
+
+В таблице 3.1 описаны ожидаемый и действительный результат для рассматриваемых алгоритмов. Эти два результата совпали.
+
+\begin{table}[H]
+	\begin{center}
+		
+		\caption{\label{tabular:test_rec} Тестирование функций}
+		\begin{tabular}{c@{\hspace{5mm}}c@{\hspace{5mm}}c@{\hspace{5mm}}c@{\hspace{7mm}}c@{\hspace{7mm}}c@{\hspace{7mm}}}
+			\hline
+			Матрица смежности & Ожидаемый результат & Действительный результат \\ \hline
+			\vspace{4mm}
+			$\begin{pmatrix}
+			0 &  1 &  10 &  7\\
+			1 &  0 &  1 &  2\\
+			10 &  1 &  0 &  1\\
+			7 &  2 &  1 &  0
+			\end{pmatrix}$ &
+			10, [0, 1, 2, 3, 0]&
+			10, [0, 1, 2, 3, 0]\\
+			\vspace{2mm}
+			\vspace{2mm}
+			$\begin{pmatrix}
+			0 &  3 &  5 &  7\\
+			7 &  0 &  1 &  2\\
+			5 &  1 &  0 &  1\\
+			7 &  2 &  1 &  0
+			\end{pmatrix}$ &
+			11, [2, 3, 1, 0, 2]&
+			11, [2, 3, 1, 0, 2]\\
+			\vspace{2mm}
+			\vspace{2mm}
+			$\begin{pmatrix}
+			0 &  3 &  5\\
+			3 &  0 &  1\\
+			5 &  1 &  0
+			\end{pmatrix}$ &
+			9, [0, 1, 2, 0]&
+			9, [0, 1, 2, 0]\\
+		\end{tabular}
+	\end{center}
+\end{table}
+
+\section{Вывод}
+
+На основе схем из конструкторского раздела были написаны реализации требуемых алгоритмов, а также проведено их тестирвание.

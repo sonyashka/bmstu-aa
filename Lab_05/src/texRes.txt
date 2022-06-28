@@ -1,0 +1,40 @@
+Tape 1 & Task 1 & 9739 & 18803\\
+Tape 2 & Task 1 & 161971 & 168354\\
+Tape 3 & Task 1 & 351420 & 355196\\
+\hline
+Tape 1 & Task 2 & 133597 & 136523\\
+Tape 2 & Task 2 & 332449 & 334707\\
+Tape 3 & Task 2 & 362972 & 364169\\
+\hline
+Tape 1 & Task 3 & 138692 & 140878\\
+Tape 2 & Task 3 & 336068 & 337135\\
+Tape 3 & Task 3 & 365097 & 365843\\
+\hline
+Tape 1 & Task 4 & 142274 & 144110\\
+Tape 2 & Task 4 & 337721 & 338747\\
+Tape 3 & Task 4 & 366256 & 366945\\
+\hline
+Tape 1 & Task 5 & 145855 & 147422\\
+Tape 2 & Task 5 & 339304 & 340210\\
+Tape 3 & Task 5 & 367331 & 368012\\
+\hline
+Tape 1 & Task 6 & 149540 & 151005\\
+Tape 2 & Task 6 & 341174 & 341950\\
+Tape 3 & Task 6 & 368377 & 368733\\
+\hline
+Tape 1 & Task 7 & 152387 & 154043\\
+Tape 2 & Task 7 & 342580 & 343618\\
+Tape 3 & Task 7 & 369158 & 370019\\
+\hline
+Tape 1 & Task 8 & 156392 & 158020\\
+Tape 2 & Task 8 & 344232 & 345246\\
+Tape 3 & Task 8 & 370509 & 370956\\
+\hline
+Tape 1 & Task 9 & 160463 & 164337\\
+Tape 2 & Task 9 & 346293 & 347081\\
+Tape 3 & Task 9 & 371351 & 371706\\
+\hline
+Tape 1 & Task 10 & 166409 & 168208\\
+Tape 2 & Task 10 & 347927 & 348770\\
+Tape 3 & Task 10 & 372064 & 372515\\
+\hline

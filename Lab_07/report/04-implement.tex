@@ -1,0 +1,185 @@
+\chapter{Технологический раздел}\label{sec:impl}
+
+Раздел содержит листинги реализованных алгоритмов, требование к ПО
+и тестирование реализованного программного обеспечения.
+
+\section{Средства реализации} 
+Для реализации ПО был выбран компилируемый многопоточный язык программирования Golang\cite{go}, поскольку язык отличается автоматическим управлением памяти. В качестве среды разработки была выбрана среда VS Code.
+
+\section{Листинги кода}
+
+На листинге \ref{lst:types} представлены используемые типы данных для реализации алгоритмов поиска
+
+\captionsetup{singlelinecheck = false, justification=raggedright}
+\begin{lstlisting}[label=lst:types,caption=Структуры данных]
+type Dict_t map[int]string
+type Segment_t Dict_t
+\end{lstlisting}
+Листинг \ref{lst:brute} демонстрирует реализацию алгоритма полного перебора.
+\captionsetup{singlelinecheck = false, justification=raggedright}
+\begin{figure}[H]
+	\begin{lstlisting}[label=lst:brute,caption=Полный перебор]
+	func BruteForce(dict Dict_t, key int) string {
+	for i := 0; i < len(dict); i++ {
+	if key - 1 == i {
+	return dict[i]
+	}
+	} 
+	return "ERROR:NOT_FOUND"
+	}
+	\end{lstlisting}
+\end{figure}
+
+На листинге \ref{lst:bin-wrap} представлена функция бинарного поиска:
+
+\begin{figure}[H]
+	\begin{lstlisting}[label=lst:bin-wrap,caption=Бинарный поиск]
+	func BinarySearch(dict Dict_t, key int) string {
+	var (left int
+	right int
+	mid int)
+	
+	left = 0
+	right = len(dict) - 1
+	
+	if right != 0 {
+	for left <= right {
+	mid = left + (right - left) / 2
+	if mid == key - 1 {
+	return dict[mid]
+	}
+	if mid < key - 1 {
+	left = mid + 1
+	} else {
+	right = mid - 1
+	}
+	}
+	}
+	return "ERROR:NOT_FOUND"
+	}
+	\end{lstlisting}
+\end{figure}
+
+На листинге \ref{lst:seg-bin-help} представлены вспомогательные функции для реализации алгоритма частотного анализа. В то время как на листинге \ref{lst:seg-bin} представлена сама реализация алгоритма частотного анализа.
+
+\begin{figure}[H]
+	\begin{lstlisting}[label=lst:seg-bin-help,caption= Вспомогательные функции для реализация алгоритма частотного анализа]
+	var alphabet = string("abcdefghijklmnopqrstuvwxyz")
+	var mask = make([]int, len(alphabet))
+	
+	func sort_keys(keys []int) {
+	for i := 0; i < len(keys)-1; i++ {
+	for j := 0; j < len(keys)-i-1; j++ {
+	if keys[j] > keys[j+1] {
+	swap_in_int_arr(keys, j, j+1)
+	}
+	}
+	}
+	}
+	
+	func init_mask() {
+	for i := 0; i < len(alphabet); i++ {
+	mask[i] = i
+	}
+	}
+	
+	func create_segments(size int) []Segment_t {
+	segments := make([]Segment_t, size)
+	for i := 0; i < size; i++ {
+	segments[i] = make(Segment_t)
+	}
+	return segments
+	}
+	\end{lstlisting}
+\end{figure}
+
+\begin{figure}[H]
+	\begin{lstlisting}[label=lst:seg-bin,caption=Реализация алгоритма частотного анализа]
+	func divide_by_first_letter(segments []Segment_t, dict Dict_t) {
+	for i := 0; i < len(dict); i++ {
+	index := find_pos(strings.ToLower(string(dict[i][0])))
+	segments[index][i] = dict[i]
+	}
+	}
+	
+	func sort_by_size(segments []Segment_t) {
+	for i := 0; i < len(segments)-1; i++ {
+	for j := 0; j < len(segments)-i-1; j++ {
+	if len(segments[j]) < len(segments[j+1]) {
+	swap_segs(segments, j, j+1)
+	swap_in_int_arr(mask, j, j+1)
+	}
+	}
+	}
+	}
+	
+	func binary_search(segments []Segment_t, key int) string {
+	var (left  int
+	right int
+	mid   int)
+	
+	for i := 0; i < len(segments); i++ {
+	var keys = make([]int, 0)
+	for key := range segments[i] {
+	keys = append(keys, key)
+	}
+	sort_keys(keys)
+	
+	left = 0
+	right = len(segments[i]) - 1
+	
+	if right != 0 {
+	for left <= right {
+	mid = left + (right-left)/2
+	if keys[mid] == key {
+	return segments[i][keys[mid]]
+	}
+	if keys[mid] < key {
+	left = mid + 1
+	} else {
+	right = mid - 1
+	}
+	}
+	}
+	}
+	return "ERROR:NOT_FOUND"
+	}
+	
+	func FreqFind(dict Dict_t, key int) string {
+	init_mask()
+	segments := create_segments(len(alphabet))
+	divide_by_first_letter(segments, dict)
+	sort_by_size(segments)
+	return binary_search(segments, key-1)
+	}
+	\end{lstlisting}
+\end{figure}
+
+\section{Тестирование ПО}
+Результаты тестирования ПО приведены в таблице \ref{table:testing}, в которой используются следующие обозначения:
+\begin{enumerate}
+	\item ПП - алгоритм полного перебора;
+	\item БП - алгоритм бинарного поиска;
+	\item ЧА - алгоритм частотного анализа;
+\end{enumerate} 
+
+\begin{table}[H]
+	\captionsetup{singlelinecheck = false, justification=raggedright}
+	\caption{Тестирование ПО}
+	\renewcommand{\arraystretch}{2}
+	\begin{center}
+		\begin{tabular}{|c|c|c|c|c|c|}
+			\hline
+			Исходный словарь &  Ключ & ПП & БП & ЧА & Ожидание \\ \hline
+			1: 'I', 2:'want', 3:'sleep' & 1 & 'I' & 'I' &'I'& 'I'\\
+			1: 'I', 2:'want', 3:'sleep' & 2 & 'want' & 'want' &'want'& 'want'\\
+			1: 'I', 2:'want', 3:'sleep', 4:'sleep'& 3 & 'sleep' & 'sleep' &'sleep'& 'sleep'\\
+			1: 'I', 2:'want', 3:'sleep', 2:'want'& 3 & 'want' & 'want' &'want'& 'want'\\
+			\hline
+		\end{tabular}
+	\end{center}
+	\label{table:testing}
+\end{table}
+
+\section{Вывод}
+Было написано и протестировано программное обеспечение для решения поставленной задачи.
